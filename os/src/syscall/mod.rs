@@ -28,6 +28,7 @@ use crate::{
 mod fs;
 mod mm;
 mod util;
+mod net;
 
 const SYSCALL_GETCWD: usize = 17;
 const SYSCALL_DUP: usize = 23;

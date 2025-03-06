@@ -96,7 +96,7 @@ build:
 	@$(OBJCOPY) $(KERNEL_ELF) --strip-all -O binary $(KERNEL_BIN)
 	
 run: build 
-	qemu-system-riscv64 $(QEMU_ARGS)
+	sudo qemu-system-riscv64 $(QEMU_ARGS)
 
 run-test: make-user move-cargo build-offline move-bin
 	qemu-system-riscv64 $(TEST_QEMU_ARGS)

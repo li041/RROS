@@ -17,6 +17,7 @@ lazy_static = { version = "1.5.0", features = ["spin_no_std"] }
 log = "0.4"
 xmas-elf = "0.7.0"
 bitflags = "2.6.0"
+systype={ path = "../modules/systype/" }
 zerocopy = { version = "0.7.35", features = ["derive"] }
 
 virtio-drivers = { git = "https://github.com/li041/virtio-drivers", branch = 'lxh'}

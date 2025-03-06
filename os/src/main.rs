@@ -25,6 +25,7 @@ mod syscall;
 mod task;
 mod timer;
 mod trap;
+mod net;
 
 pub mod config;
 pub mod utils;
