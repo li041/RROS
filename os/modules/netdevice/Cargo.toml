@@ -1,0 +1,15 @@
+[package]
+name = "netdevice"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+async-trait = "0.1"
+downcast-rs = { version = "1.2", default-features = false }
+[dependencies.smoltcp]
+git = "https://github.com/Stone749990226/smoltcp.git"
+default-features = false
+
+features=[
+    "alloc"
+]
