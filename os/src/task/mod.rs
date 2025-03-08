@@ -1,10 +1,11 @@
 pub mod aux;
-pub mod context;
-pub mod id;
-pub mod kstack;
-pub mod processor;
-pub mod scheduler;
-pub mod switch;
+mod context;
+mod id;
+mod kstack;
+mod processor;
+mod scheduler;
+mod switch;
+mod task;
 
 use crate::{
     drivers::BLOCK_DEVICE,
@@ -19,24 +20,18 @@ use crate::{
     trap::TrapContext,
     utils::{c_str_to_string, extract_cstrings},
 };
+use alloc::sync::Arc;
 use alloc::{string::String, vec};
-use alloc::{
-    sync::{Arc, Weak},
-    vec::Vec,
-};
-use aux::{AuxHeader, AT_EXECFN, AT_NULL, AT_RANDOM};
+
 use core::arch::asm;
 use lazy_static::lazy_static;
+use task::{Task, TaskStatus};
 
-use context::TaskContext;
-use id::tid_alloc;
-pub use id::TidHandle;
-use kstack::{get_stack_top_by_sp, kstack_alloc, KernelStack};
-use scheduler::{
-    add_task, block_task, fetch_task, switch_to_next_task, unblock_task_wait_on_tid, CloneFlags,
-    WaitOption,
-};
+pub use context::TaskContext;
+pub use processor::{current_task, run_tasks};
+pub use scheduler::{add_task, yield_current_task, WaitOption};
 
+<<<<<<< HEAD
 use crate::mm::MemorySet;
 
 /// tp寄存器指向Task结构体
@@ -303,6 +298,13 @@ impl TaskInner {
     //         self.fd_table.resize(fd + 1, None);
     //     }
     // }
+=======
+pub type Tid = usize;
+
+lazy_static! {
+    /// 初始进程
+    pub static ref INITPROC: Arc<Task> = Task::initproc(get_app_data_by_name("initproc").unwrap(), do_ext4_mount(BLOCK_DEVICE.clone()));
+>>>>>>> 8162fada35bdfa8533bc38451ef1b322d3374e58
 }
 
 pub fn add_initproc() {
@@ -313,6 +315,7 @@ pub fn add_initproc() {
         asm!("mv tp, {}", in(reg) initproc_tp);
     }
 }
+<<<<<<< HEAD
 
 // 把参数, 环境变量, 辅助信息压入用户栈
 // argv_base, envp_base, auxv_base, user_sp
@@ -841,3 +844,5 @@ pub fn sys_nanosleep(time_val_ptr: usize) -> isize {
     }
     0
 }
+=======
+>>>>>>> 8162fada35bdfa8533bc38451ef1b322d3374e58

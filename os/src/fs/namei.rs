@@ -31,17 +31,31 @@ impl<'a> Nameidata<'a> {
         let cur_task = current_task();
         if filename.starts_with("/") {
             // 绝对路径
+<<<<<<< HEAD
             path = cur_task.get_root();
         } else {
             // 相对路径
             if dfd == AT_FDCWD {
                 // 当前进程的工作目录
                 path = cur_task.get_pwd();
+=======
+            path = cur_task.root();
+        } else {
+            let task = current_task();
+            // 相对路径
+            if dfd == AT_FDCWD {
+                // 当前进程的工作目录
+                path = cur_task.pwd();
+>>>>>>> 8162fada35bdfa8533bc38451ef1b322d3374e58
                 assert!(!path.dentry.is_negative());
             } else {
                 // dfd是一个文件描述符, 通过文件描述符找到dentry
                 // Todo: 权限检查
+<<<<<<< HEAD
                 if let Some(file) = cur_task.inner.lock().fd_table.get_file(dfd as usize) {
+=======
+                if let Some(file) = cur_task.fd_table().get_file(dfd as usize) {
+>>>>>>> 8162fada35bdfa8533bc38451ef1b322d3374e58
                     if let Some(file) = file.as_any().downcast_ref::<File>() {
                         path = file.inner_handler(|inner| inner.path.clone());
                     } else {

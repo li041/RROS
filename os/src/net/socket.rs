@@ -2,7 +2,7 @@
  * @Author: peter
  * @Date: 2025-03-06 22:24:45
  * @LastEditors: peter
- * @LastEditTime: 2025-03-07 00:04:33
+ * @LastEditTime: 2025-03-07 17:57:54
  * @FilePath: /RROS/os/src/net/socket.rs
  * @Description: net method compilation
  * 
@@ -21,26 +21,38 @@ enum Socketstate {
 }
 
 ///todo complete the udp tcp unix sock(sk)
-enum Sock {
+pub enum Sock {
     Tcp(TcpSocket),
     Udp(UdpSocket),
     Unix(UnixSocket),
 }
+impl Sock {
+    type Error=SysError;
+    ///identify the socket struct for domain to connect,with unix domain we create unix sock;with inet or inet6 domain and stream type we create Tcpsocket
+    /// with inet or inet6 domain and package type we create Udpsocket 
+    pub fn to_sock(domain:Socketdomain,sockettype:Socketype)->Result<Self,Self::Error>{
+        match domain {
+            Socketdomain::AF_UNIX=>
+            Socketdomain::AF_INET6 | Socketdomain::AF_INET=>match sockettype {
+                Socketype::SOCKDGRAM=>
+                Socketype::SOCKSTREAM=>
+                _=>
+            }
+            
+        }
+        
+    }
+    
+}
 
-enum Socketype{
+
+
+
+
+pub enum Socketype{
     SOCKSTREAM=1,
     SOCKDGRAM=2,
 }
-
-
-enum Socketdomain{
-    AF_UNIX = 1,
-    /// ipv4
-    AF_INET = 2,
-    /// ipv6
-    AF_INET6 = 10,
-}
-
 impl Socketype {
     type Error= SysError;
     pub fn to_type(sockettype:i32)->Result<Self,Self::Error>{
@@ -48,6 +60,25 @@ impl Socketype {
         match sockettype{
             1=>Ok(Self::SOCKDGRAM),
             2=>Ok(Self::SOCKSTREAM),
+            _=>Err(Self::Error::EINVAL),
+        }
+    }
+}
+
+pub enum Socketdomain{
+    AF_UNIX = 1,
+    /// ipv4
+    AF_INET = 2,
+    /// ipv6
+    AF_INET6 = 10,
+}
+impl Socketdomain {
+    type Error=SysError;
+    pub fn to_socketdomain(domain:usize)->Result<Self,Self::Error>{
+        match domain {
+            1=>Ok(Self::AF_UNIX),
+            2=>Ok(Self::AF_INET),
+            10=>Ok(Self::AF_INET6),
             _=>Err(Self::Error::EINVAL),
         }
     }
@@ -76,7 +107,6 @@ pub struct Socket{
     socket_type:Socktype,
     //协议层结构体
     sock:Sock,
-
     //文件可以实现file trait来使用三
     // file:
     
@@ -98,6 +128,10 @@ impl Socket {
     /// return fd alloc by fileallocater
     pub fn socket(domain: usize, types: i32, protocal: usize){
         //create a socket struct and alloc a fd with socket struct we also need to complete the file trait for socket 
+        let domain=Socketdomain::to_socketdomain(domain).unwrap();
+
+
+        
     }
 }
 

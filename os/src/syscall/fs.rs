@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 use alloc::{string::String, vec};
+=======
+use alloc::vec;
+>>>>>>> 8162fada35bdfa8533bc38451ef1b322d3374e58
 
 use alloc::string::ToString;
 
@@ -21,7 +25,11 @@ use crate::{
 
 pub fn sys_read(fd: usize, buf: *mut u8, len: usize) -> isize {
     let task = current_task();
+<<<<<<< HEAD
     let file = task.inner_handler(|inner| inner.fd_table.get_file(fd));
+=======
+    let file = task.fd_table().get_file(fd);
+>>>>>>> 8162fada35bdfa8533bc38451ef1b322d3374e58
     if let Some(file) = file {
         let file = file.clone();
         if !file.readable() {
@@ -40,7 +48,11 @@ pub fn sys_write(fd: usize, buf: *const u8, len: usize) -> isize {
         log::info!("sys_write: fd: {}, len: {}", fd, len);
     }
     let task = current_task();
+<<<<<<< HEAD
     let file = task.inner_handler(|inner| inner.fd_table.get_file(fd));
+=======
+    let file = task.fd_table().get_file(fd);
+>>>>>>> 8162fada35bdfa8533bc38451ef1b322d3374e58
     if let Some(file) = file {
         if !file.writable() {
             return -1;
@@ -55,10 +67,17 @@ pub fn sys_write(fd: usize, buf: *const u8, len: usize) -> isize {
 
 pub fn sys_dup(oldfd: usize) -> isize {
     let task = current_task();
+<<<<<<< HEAD
     let file = task.inner_handler(|inner| inner.fd_table.get_file(oldfd));
     if let Some(file) = file {
         let file = file.clone();
         let newfd = task.inner_handler(|inner| inner.alloc_fd(file));
+=======
+    let file = task.fd_table().get_file(oldfd);
+    if let Some(file) = file {
+        let file = file.clone();
+        let newfd = task.fd_table().alloc_fd(file);
+>>>>>>> 8162fada35bdfa8533bc38451ef1b322d3374e58
         newfd as isize
     } else {
         -1
@@ -72,6 +91,7 @@ pub fn sys_dup2(oldfd: usize, newfd: usize) -> isize {
     if oldfd == newfd {
         return newfd as isize;
     }
+<<<<<<< HEAD
     let file = task.inner_handler(|inner| inner.fd_table.get_file(oldfd));
     if let Some(file) = file {
         let file = file.clone();
@@ -81,6 +101,16 @@ pub fn sys_dup2(oldfd: usize, newfd: usize) -> isize {
                 log::warn!("sys_dup2: newfd {} already opened", newfd);
             }
         });
+=======
+    let file = task.fd_table().get_file(oldfd);
+    if let Some(file) = file {
+        let file = file.clone();
+        let fd_table = task.fd_table();
+        fd_table.close(newfd);
+        if fd_table.insert(newfd, file).is_some() {
+            log::warn!("sys_dup2: newfd {} already opened", newfd);
+        }
+>>>>>>> 8162fada35bdfa8533bc38451ef1b322d3374e58
         newfd as isize
     } else {
         -1
@@ -202,7 +232,11 @@ pub fn sys_openat(dirfd: i32, pathname: *const u8, flags: usize, mode: usize) ->
     let task = current_task();
     let path = c_str_to_string(pathname);
     if let Ok(file) = path_openat(&path, flags, dirfd, mode) {
+<<<<<<< HEAD
         let fd = task.inner_handler(|inner| inner.alloc_fd(file));
+=======
+        let fd = task.fd_table().alloc_fd(file);
+>>>>>>> 8162fada35bdfa8533bc38451ef1b322d3374e58
         log::info!("[sys_openat] success to open file: {}, fd: {}", path, fd);
         // Debug Ok
         // ext4_list_apps(current_task().get_root().dentry.get_inode());
@@ -243,7 +277,11 @@ pub fn sys_mkdirat(dirfd: isize, pathname: *const u8, mode: usize) -> isize {
 pub fn sys_getcwd(buf: *mut u8, buf_size: usize) -> isize {
     // glibc getcwd(3) says that if buf is NULL, it will allocate a buffer
     // let cwd = current_task().inner.lock().cwd.clone();
+<<<<<<< HEAD
     let mut cwd = current_task().inner_handler(|inner| inner.pwd.dentry.absolute_path.clone());
+=======
+    let mut cwd = current_task().pwd().dentry.absolute_path.clone();
+>>>>>>> 8162fada35bdfa8533bc38451ef1b322d3374e58
     // 特殊处理根目录, 因为根目录的路径是空字符串
     if cwd.is_empty() {
         cwd = "/".to_string();
@@ -265,9 +303,13 @@ pub fn sys_getcwd(buf: *mut u8, buf_size: usize) -> isize {
 
 // 仅仅是根据初赛的文档要求, 后续需要根据man7修改
 pub fn sys_fstat(dirfd: i32, statbuf: *mut Stat) -> isize {
+<<<<<<< HEAD
     if let Some(file_dyn) =
         current_task().inner_handler(|inner| inner.fd_table.get_file(dirfd as usize))
     {
+=======
+    if let Some(file_dyn) = current_task().fd_table().get_file(dirfd as usize) {
+>>>>>>> 8162fada35bdfa8533bc38451ef1b322d3374e58
         // let file = file_dyn.as_any().downcast_ref::<File>().unwrap();
         match file_dyn.as_any().downcast_ref::<File>() {
             Some(file) => {
@@ -297,7 +339,11 @@ pub fn sys_getdents64(fd: usize, dirp: *mut u8, count: usize) -> isize {
         count
     );
     let task = current_task();
+<<<<<<< HEAD
     if let Some(file_dyn) = task.inner_handler(|inner| inner.fd_table.get_file(fd as usize)) {
+=======
+    if let Some(file_dyn) = task.fd_table().get_file(fd as usize) {
+>>>>>>> 8162fada35bdfa8533bc38451ef1b322d3374e58
         if let Some(file) = file_dyn.as_any().downcast_ref::<File>() {
             let mut buf = vec![0u8; count];
             match file.readdir() {
@@ -336,7 +382,11 @@ pub fn sys_chdir(pathname: *const u8) -> isize {
     let fake_lookup_flags = 0;
     match filename_lookup(&mut nd, fake_lookup_flags) {
         Ok(dentry) => {
+<<<<<<< HEAD
             current_task().inner_handler(|inner| inner.pwd = Path::new(nd.mnt, dentry));
+=======
+            current_task().set_pwd(Path::new(nd.mnt, dentry));
+>>>>>>> 8162fada35bdfa8533bc38451ef1b322d3374e58
             0
         }
         Err(e) => {
@@ -350,6 +400,7 @@ pub fn sys_chdir(pathname: *const u8) -> isize {
 pub fn sys_pipe2(fdset: *const u8) -> isize {
     let task = current_task();
     let pipe_pair = Pipe::new_pair();
+<<<<<<< HEAD
     let fdret = task.inner_handler(|inner| {
         // let fd1 = inner.alloc_fd();
         // inner.fd_table[fd1] = Some(pipe_pair.0.clone());
@@ -360,9 +411,15 @@ pub fn sys_pipe2(fdset: *const u8) -> isize {
         (fd1, fd2)
     });
     let fdret: [i32; 2] = [fdret.0 as i32, fdret.1 as i32];
+=======
+    let fd_table = task.fd_table();
+    let fd1 = fd_table.alloc_fd(pipe_pair.0.clone());
+    let fd2 = fd_table.alloc_fd(pipe_pair.1.clone());
+    let pipe = [fd1 as i32, fd2 as i32];
+>>>>>>> 8162fada35bdfa8533bc38451ef1b322d3374e58
     let fdset_ptr = fdset as *mut [i32; 2];
     unsafe {
-        core::ptr::write(fdset_ptr, fdret);
+        core::ptr::write(fdset_ptr, pipe);
     }
     0
 }
@@ -370,6 +427,7 @@ pub fn sys_pipe2(fdset: *const u8) -> isize {
 pub fn sys_close(fd: usize) -> isize {
     log::info!("[sys_close] fd: {}", fd);
     let task = current_task();
+<<<<<<< HEAD
     return task.inner_handler(|inner| {
         if inner.fd_table.close(fd) {
             0
@@ -378,4 +436,12 @@ pub fn sys_close(fd: usize) -> isize {
             -1
         }
     });
+=======
+    let fd_table = task.fd_table();
+    if fd_table.close(fd) {
+        0
+    } else {
+        -1
+    }
+>>>>>>> 8162fada35bdfa8533bc38451ef1b322d3374e58
 }

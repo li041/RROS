@@ -1,5 +1,6 @@
 #![no_std]
 #![no_main]
+#![feature(map_try_insert)]
 #![feature(alloc_error_handler)]
 #![feature(negative_impls)]
 #![feature(panic_info_message)]
@@ -30,11 +31,15 @@ mod net;
 pub mod config;
 pub mod utils;
 
+<<<<<<< HEAD
+=======
+use config::KERNEL_BASE;
+>>>>>>> 8162fada35bdfa8533bc38451ef1b322d3374e58
 use fs::mount::do_ext4_mount;
 use riscv::register::sstatus;
-use task::{add_initproc, processor::run_tasks};
+use task::{add_initproc, run_tasks, TaskContext};
+use trap::TrapContext;
 
-use crate::config::KERNEL_BASE;
 use core::{
     arch::{asm, global_asm},
     ffi::c_void,
@@ -101,10 +106,10 @@ pub fn rust_main(_hart_id: usize) -> ! {
 pub fn show_context_size() {
     log::info!(
         "size of trap context: {}",
-        core::mem::size_of::<trap::context::TrapContext>()
+        core::mem::size_of::<TrapContext>()
     );
     log::info!(
         "size of task context: {}",
-        core::mem::size_of::<task::context::TaskContext>()
+        core::mem::size_of::<TaskContext>()
     )
 }
