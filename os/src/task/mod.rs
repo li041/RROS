@@ -28,6 +28,7 @@ use lazy_static::lazy_static;
 use task::{Task, TaskStatus};
 
 pub use context::TaskContext;
+<<<<<<< HEAD
 pub use processor::{current_task, run_tasks};
 pub use scheduler::{add_task, yield_current_task, WaitOption};
 
@@ -305,16 +306,27 @@ lazy_static! {
     /// 初始进程
     pub static ref INITPROC: Arc<Task> = Task::initproc(get_app_data_by_name("initproc").unwrap(), do_ext4_mount(BLOCK_DEVICE.clone()));
 >>>>>>> 8162fada35bdfa8533bc38451ef1b322d3374e58
+=======
+pub use task::kernel_exit;
+pub use processor::{current_task, run_tasks};
+pub use scheduler::{add_task, yield_current_task, switch_to_next_task, WaitOption, remove_task};
+
+pub type Tid = usize;
+
+lazy_static! {
+    /// 初始进程
+    pub static ref INITPROC: Arc<Task> = Task::initproc(get_app_data_by_name("initproc").unwrap(), do_ext4_mount(BLOCK_DEVICE.clone()));
+>>>>>>> 13a1da6b38b24cc7e0cb99a67db59f853588ac62
 }
 
 pub fn add_initproc() {
-    add_task(INITPROC.clone());
     // 设置tp寄存器指向INITPROC
     let initproc_tp = Arc::as_ptr(&INITPROC) as usize;
     unsafe {
         asm!("mv tp, {}", in(reg) initproc_tp);
     }
 }
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 // 把参数, 环境变量, 辅助信息压入用户栈
@@ -846,3 +858,5 @@ pub fn sys_nanosleep(time_val_ptr: usize) -> isize {
 }
 =======
 >>>>>>> 8162fada35bdfa8533bc38451ef1b322d3374e58
+=======
+>>>>>>> 13a1da6b38b24cc7e0cb99a67db59f853588ac62

@@ -32,9 +32,13 @@ pub mod config;
 pub mod utils;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 use config::KERNEL_BASE;
 >>>>>>> 8162fada35bdfa8533bc38451ef1b322d3374e58
+=======
+use config::KERNEL_BASE;
+>>>>>>> 13a1da6b38b24cc7e0cb99a67db59f853588ac62
 use fs::mount::do_ext4_mount;
 use riscv::register::sstatus;
 use task::{add_initproc, run_tasks, TaskContext};

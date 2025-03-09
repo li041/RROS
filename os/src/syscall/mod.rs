@@ -16,6 +16,7 @@ use fs::{
 };
 use mm::{sys_brk, sys_mmap, sys_munmap};
 <<<<<<< HEAD
+<<<<<<< HEAD
 use util::{sys_times, sys_uname};
 
 use crate::{
@@ -27,13 +28,21 @@ use crate::{
 =======
 use task::{
     sys_clone, sys_execve, sys_exit, sys_get_time, sys_getpid, sys_getppid, sys_nanosleep,
+=======
+use task::{
+    sys_clone, sys_execve, sys_get_time, sys_getpid, sys_getppid, sys_nanosleep,
+>>>>>>> 13a1da6b38b24cc7e0cb99a67db59f853588ac62
     sys_waitpid, sys_yield,
 >>>>>>> 8162fada35bdfa8533bc38451ef1b322d3374e58
 };
 use util::{sys_times, sys_uname};
 
 use crate::fs::kstat::Stat;
+<<<<<<< HEAD
 pub use task::CloneFlags;
+=======
+pub use task::{CloneFlags, sys_exit};
+>>>>>>> 13a1da6b38b24cc7e0cb99a67db59f853588ac62
 mod fs;
 mod mm;
 mod task;

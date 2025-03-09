@@ -32,6 +32,7 @@ impl<'a> Nameidata<'a> {
         if filename.starts_with("/") {
             // 绝对路径
 <<<<<<< HEAD
+<<<<<<< HEAD
             path = cur_task.get_root();
         } else {
             // 相对路径
@@ -39,6 +40,8 @@ impl<'a> Nameidata<'a> {
                 // 当前进程的工作目录
                 path = cur_task.get_pwd();
 =======
+=======
+>>>>>>> 13a1da6b38b24cc7e0cb99a67db59f853588ac62
             path = cur_task.root();
         } else {
             let task = current_task();
@@ -46,16 +49,23 @@ impl<'a> Nameidata<'a> {
             if dfd == AT_FDCWD {
                 // 当前进程的工作目录
                 path = cur_task.pwd();
+<<<<<<< HEAD
 >>>>>>> 8162fada35bdfa8533bc38451ef1b322d3374e58
+=======
+>>>>>>> 13a1da6b38b24cc7e0cb99a67db59f853588ac62
                 assert!(!path.dentry.is_negative());
             } else {
                 // dfd是一个文件描述符, 通过文件描述符找到dentry
                 // Todo: 权限检查
 <<<<<<< HEAD
+<<<<<<< HEAD
                 if let Some(file) = cur_task.inner.lock().fd_table.get_file(dfd as usize) {
 =======
                 if let Some(file) = cur_task.fd_table().get_file(dfd as usize) {
 >>>>>>> 8162fada35bdfa8533bc38451ef1b322d3374e58
+=======
+                if let Some(file) = cur_task.fd_table().get_file(dfd as usize) {
+>>>>>>> 13a1da6b38b24cc7e0cb99a67db59f853588ac62
                     if let Some(file) = file.as_any().downcast_ref::<File>() {
                         path = file.inner_handler(|inner| inner.path.clone());
                     } else {

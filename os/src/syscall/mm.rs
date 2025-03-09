@@ -147,6 +147,7 @@ pub fn sys_mmap(
         }
         // 读取文件
 <<<<<<< HEAD
+<<<<<<< HEAD
         // let file = task
         //     .inner_handler(|inner| inner.fd_table[fd as usize].clone())
         //     .unwrap();
@@ -169,6 +170,8 @@ pub fn sys_mmap(
         log::error!("mmap content: {:?}", buf);
         return start as isize;
 =======
+=======
+>>>>>>> 13a1da6b38b24cc7e0cb99a67db59f853588ac62
         let file = task.fd_table().get_file(fd as usize).unwrap();
         task.op_memory_set_mut(|memory_set| {
             let start = memory_set.mmap_start;
@@ -183,7 +186,10 @@ pub fn sys_mmap(
             log::error!("mmap content: {:?}", buf);
             return start as isize;
         })
+<<<<<<< HEAD
 >>>>>>> 8162fada35bdfa8533bc38451ef1b322d3374e58
+=======
+>>>>>>> 13a1da6b38b24cc7e0cb99a67db59f853588ac62
     }
 }
 
