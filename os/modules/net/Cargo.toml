@@ -11,6 +11,7 @@ default = ["smoltcp"]
 spin = "0.9"
 log = "0.4"
 crate_interface = "0.1"
+netdevice= { path = "../netdevice/" }
 
 [dependencies.smoltcp]
 git = "https://github.com/Stone749990226/smoltcp.git"

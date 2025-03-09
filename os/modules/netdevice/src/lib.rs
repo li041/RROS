@@ -2,7 +2,7 @@
  * @Author: peter
  * @Date: 2025-03-08 20:33:51
  * @LastEditors: peter
- * @LastEditTime: 2025-03-08 21:47:01
+ * @LastEditTime: 2025-03-09 15:21:18
  * @FilePath: /netdevice/src/lib.rs
  * @Description: net device modules trait
  * 
@@ -33,10 +33,6 @@ pub trait Netdevice:Send+Sync {
     fn send_queue_size(&self)->usize;
     //返回网卡最多可以存储的可接受数据包个数
     fn recv_queue_size(&self)->usize;
-    //返回网卡发送数据大小
-    fn send(&self)->usize;
-    //返回网卡接受数据大小
-    fn recv(&self)->usize;
     //回收已经发送结束的数据包进入发送队列，供后续使用
     fn recycle_send_buffer(&mut self,send_buf:Box<dyn NetdeviceBuffer>)->DevResult;
     //回收以及接受结束的数据包个进入接受队列，供后续使用
