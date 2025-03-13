@@ -1,7 +1,10 @@
 use crate::{
     fs::{namei::path_openat, AT_FDCWD},
     loader::get_app_data_by_name,
-    task::{add_task, current_task, kernel_exit, remove_task, switch_to_next_task, yield_current_task, TaskContext, WaitOption},
+    task::{
+        add_task, current_task, kernel_exit, remove_task, switch_to_next_task, yield_current_task,
+        TaskContext, WaitOption,
+    },
     timer::get_time_ms,
     trap::TrapContext,
     utils::{c_str_to_string, extract_cstrings},
@@ -33,7 +36,9 @@ pub fn sys_clone(
     unsafe {
         // 设定子任务返回值为0，令tp指向该任务结构
         // ToDo: 检验用户栈指针
-        if stack_ptr != 0 {(*new_trap_cx_ptr).x[2] = stack_ptr;}
+        if stack_ptr != 0 {
+            (*new_trap_cx_ptr).x[2] = stack_ptr;
+        }
         (*new_trap_cx_ptr).x[4] = Arc::as_ptr(&new_task) as usize;
         (*new_trap_cx_ptr).x[10] = 0;
     }
@@ -47,7 +52,12 @@ pub fn sys_clone(
 }
 
 pub fn sys_execve(path: *const u8, args: *const usize, envs: *const usize) -> isize {
-    log::info!("path:{}, args:{:x}, envs:{:x}", path as usize, args as usize, envs as usize);
+    log::error!(
+        "path:{}, args:{:x}, envs:{:x}",
+        path as usize,
+        args as usize,
+        envs as usize
+    );
     let path = c_str_to_string(path);
     log::error!("path: {}", path);
     // argv[0]是应用程序的名字

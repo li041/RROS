@@ -16,8 +16,9 @@ const THEME_COLOR: &str = "\u{1B}[38;5;14m";
 const RESET_COLOR: &str = "\u{1B}[0m";
 
 use alloc::string::String;
+use alloc::vec::Vec;
 use user_lib::console::getchar;
-use user_lib::{exec, fork, waitpid};
+use user_lib::{execve, fork, waitpid};
 
 fn print_prompt() {
     print!("{}RROS>> {}", THEME_COLOR, RESET_COLOR);
@@ -37,7 +38,11 @@ pub fn main() -> i32 {
                     let pid = fork();
                     if pid == 0 {
                         // child process
-                        if exec(line.as_str()) == -1 {
+                        let args = line.split_whitespace().collect::<Vec<&str>>();
+                        let mut path = String::from(args[0]);
+                        path.push('\0');
+                        println!("path: {}", path);
+                        if execve(&path, &args, &[]) == -1 {
                             println!("Error when executing!");
                             return -4;
                         }
