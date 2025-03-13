@@ -29,7 +29,9 @@ pub fn sys_read(fd: usize, buf: *mut u8, len: usize) -> isize {
             return -1;
         }
         let ret = file.read(unsafe { core::slice::from_raw_parts_mut(buf, len) });
-        log::info!("sys_read: fd: {}, len: {}, ret: {}", fd, len, ret);
+        if fd >= 3 {
+            log::info!("sys_read: fd: {}, len: {}, ret: {}", fd, len, ret);
+        }
         ret as isize
     } else {
         -1

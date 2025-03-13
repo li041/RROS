@@ -67,7 +67,6 @@ pub fn sys_execve(path: *const u8, args: *const usize, envs: *const usize) -> is
     let task = current_task();
     // flags = RDONLY = 0, 以只读方式打开文件
     if let Ok(file) = path_openat(&path, 0, AT_FDCWD, 0) {
-        args_vec.insert(0, path);
         let all_data = file.read_all();
         task.kernel_execve(all_data.as_slice(), args_vec, envs_vec);
         0

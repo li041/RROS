@@ -7,6 +7,8 @@ extern crate alloc;
 #[macro_use]
 extern crate user_lib;
 
+mod shell;
+
 const LF: u8 = 0x0au8;
 const CR: u8 = 0x0du8;
 const DL: u8 = 0x7fu8;
@@ -17,6 +19,7 @@ const RESET_COLOR: &str = "\u{1B}[0m";
 
 use alloc::string::String;
 use alloc::vec::Vec;
+use shell::command::Command;
 use user_lib::console::getchar;
 use user_lib::{execve, fork, waitpid};
 
@@ -34,19 +37,10 @@ pub fn main() -> i32 {
             LF | CR => {
                 println!("");
                 if !line.is_empty() {
-                    line.push('\0');
+                    let mut cmd = Command::from(line.as_str());
                     let pid = fork();
                     if pid == 0 {
-                        // child process
-                        let args = line.split_whitespace().collect::<Vec<&str>>();
-                        let mut path = String::from(args[0]);
-                        path.push('\0');
-                        println!("path: {}", path);
-                        if execve(&path, &args, &[]) == -1 {
-                            println!("Error when executing!");
-                            return -4;
-                        }
-                        unreachable!();
+                        cmd.exec();
                     } else {
                         let mut exit_code: i32 = 0;
                         let exit_pid = waitpid(pid as usize, &mut exit_code);
@@ -56,7 +50,6 @@ pub fn main() -> i32 {
                     }
                     line.clear();
                 }
-                // print!(">> ");
                 print_prompt();
             }
             BS | DL => {
