@@ -53,14 +53,7 @@ pub fn sys_clone(
 }
 
 pub fn sys_execve(path: *const u8, args: *const usize, envs: *const usize) -> isize {
-    log::error!(
-        "path:{}, args:{:x}, envs:{:x}",
-        path as usize,
-        args as usize,
-        envs as usize
-    );
     let path = c_str_to_string(path);
-    log::error!("path: {}", path);
     // argv[0]是应用程序的名字
     // 后续元素是用户在命令行中输入的参数
     let mut args_vec = extract_cstrings(args);

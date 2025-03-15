@@ -6,9 +6,17 @@ use core::{arch::asm, panic};
 
 use super::VirtAddr;
 use crate::{
-    config::{MMAP_MIN_ADDR, PAGE_SIZE_BITS, USER_STACK_SIZE}, fs::namei::path_openat, task::{aux::*, current_task}, utils::ceil_to_page_size
+    config::{MMAP_MIN_ADDR, PAGE_SIZE_BITS, USER_STACK_SIZE},
+    fs::namei::path_openat,
+    task::{aux::*, current_task},
+    utils::ceil_to_page_size,
 };
-use alloc::{collections::btree_map::BTreeMap, string::{String, ToString}, vec::Vec, vec};
+use alloc::{
+    collections::btree_map::BTreeMap,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
 use bitflags::bitflags;
 use log::info;
 use riscv::{interrupt, register::satp};
@@ -21,12 +29,12 @@ use super::{
 };
 use crate::{
     boards::qemu::{MEMORY_END, MMIO},
-    config::{KERNEL_BASE, PAGE_SIZE, DL_INTERP_OFFSET},
+    config::{DL_INTERP_OFFSET, KERNEL_BASE, PAGE_SIZE},
+    fs::AT_FDCWD,
     index_list::IndexList,
     mm::{page_table::PageTableEntry, StepByOne},
     mutex::SpinNoIrqLock,
     task::aux::AuxHeader,
-    fs::AT_FDCWD,
 };
 use lazy_static::lazy_static;
 
@@ -222,7 +230,11 @@ impl MemorySet {
                 max_end_vpn = map_area.vpn_range.get_end();
 
                 let map_offset = start_va.0 - start_va.floor().0 * PAGE_SIZE;
-                log::info!("[from_elf] app map area: [{:#x}, {:#x})", start_va.0, end_va.0);
+                log::info!(
+                    "[from_elf] app map area: [{:#x}, {:#x})",
+                    start_va.0,
+                    end_va.0
+                );
                 memory_set.push_with_offset(
                     map_area,
                     Some(&elf_data[ph.offset() as usize..(ph.offset() + ph.file_size()) as usize]),
@@ -241,7 +253,10 @@ impl MemorySet {
             // 获取动态链接器的路径
             let section = elf.find_section_by_name(".interp").unwrap();
             let mut interpreter = String::from_utf8(section.raw_data(&elf).to_vec()).unwrap();
-            interpreter = interpreter.strip_suffix("\0").unwrap_or(&interpreter).to_string();
+            interpreter = interpreter
+                .strip_suffix("\0")
+                .unwrap_or(&interpreter)
+                .to_string();
             log::info!("[from_elf] interpreter path: {}", interpreter);
 
             let interps = vec![interpreter.clone()];
@@ -259,8 +274,12 @@ impl MemorySet {
                         // 程序头部的类型是Load, 代码段或数据段
                         let ph = interp_elf.program_header(i).unwrap();
                         if ph.get_type().unwrap() == Type::Load {
-                            let start_va: VirtAddr = (ph.virtual_addr() as usize + DL_INTERP_OFFSET).into();
-                            let end_va: VirtAddr = (ph.virtual_addr() as usize + DL_INTERP_OFFSET + ph.mem_size() as usize).into();
+                            let start_va: VirtAddr =
+                                (ph.virtual_addr() as usize + DL_INTERP_OFFSET).into();
+                            let end_va: VirtAddr = (ph.virtual_addr() as usize
+                                + DL_INTERP_OFFSET
+                                + ph.mem_size() as usize)
+                                .into();
 
                             // 注意用户要带U标志
                             let mut map_perm = MapPermission::U;
@@ -274,13 +293,21 @@ impl MemorySet {
                             if ph_flags.is_execute() {
                                 map_perm |= MapPermission::X;
                             }
-                            let map_area = MapArea::new_from_va(start_va, end_va, MapType::Framed, map_perm);
-            
+                            let map_area =
+                                MapArea::new_from_va(start_va, end_va, MapType::Framed, map_perm);
+
                             let map_offset = start_va.0 - start_va.floor().0 * PAGE_SIZE;
-                            log::info!("[from_elf] interp map area: [{:#x}, {:#x})", start_va.0, end_va.0);
+                            log::info!(
+                                "[from_elf] interp map area: [{:#x}, {:#x})",
+                                start_va.0,
+                                end_va.0
+                            );
                             memory_set.push_with_offset(
                                 map_area,
-                                Some(&interp_data[ph.offset() as usize..(ph.offset() + ph.file_size()) as usize]),
+                                Some(
+                                    &interp_data[ph.offset() as usize
+                                        ..(ph.offset() + ph.file_size()) as usize],
+                                ),
                                 map_offset,
                             );
                         }
@@ -294,7 +321,7 @@ impl MemorySet {
                 } else {
                     log::error!("[from_elf] interpreter open failed");
                 }
-            } 
+            }
         } else {
             log::info!("[from_elf] static link");
         }
@@ -813,7 +840,7 @@ pub enum MapType {
 }
 
 bitflags! {
-    #[derive(Clone, Copy)]
+    #[derive(Clone, Copy, Debug)]
     pub struct MapPermission: u16 {
         const R = 1 << 1;
         const W = 1 << 2;
