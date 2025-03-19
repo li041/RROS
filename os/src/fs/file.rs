@@ -48,6 +48,19 @@ pub trait FileOp: Any + Send + Sync {
         -ENOTTY
     }
 }
+#[allow(non_camel_case_types)]
+impl dyn FileOp {
+    pub fn downcast_arc<T: FileOp>(self: Arc<Self>) -> Result<Arc<T>, Arc<dyn FileOp>> {
+        // 使用 as_any 方法获取具体类型的引用
+        if let Some(concrete) = self.as_any().downcast_ref::<T>() {
+            // SAFETY: 由于 as_any().downcast_ref::<T>() 成功，转换是安全的
+            let raw = Arc::into_raw(self) as *const T;
+            Ok(unsafe { Arc::from_raw(raw) })
+        } else {
+            Err(self)
+        }
+    }
+}
 
 impl File {
     pub fn inner_handler<T>(&self, f: impl FnOnce(&mut FileInner) -> T) -> T {
@@ -144,3 +157,4 @@ pub const O_RDWR: usize = 2;
 pub const O_CREAT: usize = 0x40;
 pub const O_DIRECTORY: usize = 0x10000;
 pub const O_NOFOLLOW: usize = 0x200000;
+pub const O_NONBLOCK:usize= 0x800; ///2048

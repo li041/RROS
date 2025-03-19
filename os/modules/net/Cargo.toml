@@ -1,0 +1,40 @@
+[package]
+name = "net"
+version = "0.1.0"
+edition = "2024"
+
+[features]
+smoltcp = []
+default = ["smoltcp"]
+
+[dependencies]
+spin = "0.9"
+log = "0.4"
+crate_interface = "0.1"
+netdevice= { path = "../netdevice/" }
+async-utils={ path = "../async-utils/" }
+lazy_static="1.4"
+riscv = "0.11"
+
+[dependencies.smoltcp]
+git = "https://github.com/Stone749990226/smoltcp.git"
+default-features = false
+features = [
+    "alloc",
+    "log",             # no std
+    "medium-ethernet",
+    "medium-ip",       # used for Loopback device
+    "proto-ipv4",
+    "proto-ipv6",
+    "socket-raw",
+    "socket-icmp",
+    "socket-udp",
+    "socket-tcp",
+    "socket-dns",
+    "proto-ipv6",
+    "async",
+    # "fragmentation-buffer-size-65536", "proto-ipv4-fragmentation",
+    # "reassembly-buffer-size-65536", "reassembly-buffer-count-32",
+    # "assembler-max-segment-count-32",
+]
+

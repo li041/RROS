@@ -659,3 +659,115 @@ pub enum TaskStatus {
     Blocked,
     Zombie,
 }
+
+impl Task {
+    ///this function will read from pointer in addr which point at a Socketaddr the socketaddr
+    /// length is describe in addrlen.
+    /// the step will in 2steps
+    /// first,make sure the addr is in user space
+    /// second according SocketAddr translate to SocketAddr struct 
+    pub fn read_sockaddr(&self,addr:usize,addrlen:usize)->Result<SocketAddr,SysError> {
+
+        //check whether addr is ok to read
+        let start_vpn=VirtAddr::from(addr as usize).floor();
+        let end_vpn=VirtAddr::from(addr +addrlen).ceil();
+        let vpn_range=VPNRange::new(start_vpn, end_vpn);
+        self.op_memory_set_mut(|memory_set|{
+            memory_set.check_valid_user_vpn_range(vpn_range, MapPermission::R)
+        });
+        let family=SaFamily::try_from(unsafe {
+            *(addr as *const u16)
+        })?;
+        match  family{
+            SaFamily::AF_Unix => {
+                if unlikely(addrlen< mem::size_of::<SockAddrUn>()) {
+                    log::error!("[read_sockaddr] error occurs at check addrlen with SockaddrUnix");
+                    return Err(SysError::EINVAL);
+                }
+                Ok(SocketAddr{
+                    unix: unsafe { *(addr as *const _) },
+                })
+            },
+            SaFamily::AF_Inet => {
+                if unlikely(addrlen< mem::size_of::<SockAddrIn>()){
+                    log::error!("[read_sockaddr] error occurs at check addrlen with SockaddrIn");
+                    return Err(SysError::EINVAL);
+                }
+                Ok(SocketAddr{
+                    ipv4: unsafe { *(addr as *const _) },
+                })
+            },
+            SaFamily::AF_Inet6 => {
+                if unlikely(addrlen< mem::size_of::<SockAddrIn6>()) {
+                    log::error!("[read_sockaddr] error occurs at check addrlen with SockaddrIn6");
+                    return Err(SysError::EINVAL);
+                }
+                Ok(SocketAddr{
+                    ipv6: unsafe { *(addr as *const _) },
+                })
+            },
+        }
+
+    }
+    /// this function will write from pointer in addr which point at a Socketaddr the socketaddr
+    /// length is describe in addrlen.
+    /// the step will in 2steps
+    /// first,make sure the addr is in user space
+    /// second according SocketAddr translate to SocketAddr struct 
+    /// write sockaddr addr into addr which pointer point at
+
+    pub fn write_sockaddr(&self,addr:usize,addrlen:usize,sockaddr:SocketAddr)->Result<(),SysError> {
+        //addr check
+        let start_vpn=VirtAddr::from(addr as usize).floor();
+        let end_vpn=VirtAddr::from(addr +addrlen).ceil();
+        let vpn_range=VPNRange::new(start_vpn, end_vpn);
+        if let Err(e) =self.op_memory_set_mut(|memory_set|{
+            memory_set.check_valid_user_vpn_range(vpn_range, MapPermission::W)
+        }){
+            return Err(SysError::EINVAL);
+        };
+        unsafe {
+            match SaFamily::try_from(sockaddr.family).unwrap() {
+                SaFamily::AF_Inet => {
+                    // 写入 IPv4 地址结构
+                    unsafe {
+                        ptr::write(addr as *mut SockAddrIn, sockaddr.ipv4);
+                    }
+                    // 写入地址结构长度
+                    let size = mem::size_of::<SockAddrIn>() as u32;
+                    unsafe {
+                        ptr::write(addrlen as *mut u32, size);
+                    }
+                }
+                SaFamily::AF_Inet6 => {
+                    // 写入 IPv6 地址结构
+                    unsafe {
+                        ptr::write(addr as *mut SockAddrIn6, sockaddr.ipv6);
+                    }
+                    // 写入地址结构长度
+                    let size = mem::size_of::<SockAddrIn6>() as u32;
+                    unsafe {
+                        ptr::write(addrlen as *mut u32, size);
+                    }
+                }
+                SaFamily::AF_Unix => {
+                    // 写入 Unix 域套接字地址结构
+                    unsafe {
+                        ptr::write(addr as *mut SockAddrUn, sockaddr.unix);
+                    }
+                    // 写入地址结构长度
+                    let size = mem::size_of::<SockAddrUn>() as u32;
+                    unsafe {
+                        ptr::write(addrlen as *mut u32, size);
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+    pub fn sockfd_lookup(&self,sockfd:usize)->Result<Arc<Socket>,SysError>{
+        let a=self.fd_table().get_file(sockfd).unwrap();
+        a.downcast_arc::<Socket>()
+        .map_err(|_| SysError::EINVAL)
+    }
+}
