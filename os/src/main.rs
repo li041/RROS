@@ -3,6 +3,7 @@
 #![feature(map_try_insert)]
 #![feature(alloc_error_handler)]
 #![feature(negative_impls)]
+#![feature(core_intrinsics)]
 
 extern crate alloc;
 
@@ -18,6 +19,7 @@ mod mm;
 pub mod mutex;
 // mod sched;
 mod arch;
+mod net;
 
 #[cfg(target_arch = "riscv64")]
 mod drivers;

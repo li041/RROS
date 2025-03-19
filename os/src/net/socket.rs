@@ -2,7 +2,7 @@
  * @Author: Peter/peterluck2021@163.com
  * @Date: 2025-03-18 14:50:03
  * @LastEditors: Peter/peterluck2021@163.com
- * @LastEditTime: 2025-03-19 17:16:32
+ * @LastEditTime: 2025-03-19 23:05:38
  * @FilePath: /os/src/net/socket.rs
  * @Description: 
  * 
@@ -13,19 +13,9 @@ use core::any::Any;
 
 use alloc::sync::Arc;
 use downcast_arc::DowncastArc;
-/*
- * @Author: Peter/peterluck2021@163.com
- * @Date: 2025-03-18 14:50:03
- * @LastEditors: Peter/peterluck2021@163.com
- * @LastEditTime: 2025-03-18 22:52:10
- * @FilePath: /os/src/net/socket.rs
- * @Description: 
- * 
- * Copyright (c) 2025 by peterluck2021@163.com, All Rights Reserved. 
- */
 use log::{info, warn};
 use net::{addr::UNSPECIFIED_IPV4, err::SysError, tcp::TcpSocket, udp::UdpSocket, IpEndpoint, NetPollState};
-use crate::{fs::{dentry::Dentry, file::{ File, FileOp, O_NONBLOCK, O_RDWR}, path::Path}, syscall::fs::sys_dup2, task::current_task};
+use crate::{fs::{dentry::Dentry, file::{ File, FileOp, O_NONBLOCK, O_RDWR}, path::Path},syscall::fs::sys_dup2, task::current_task};
 // use tokio::runtime::Runtime;
 use super::{addr::SocketAddr, unix::UnixSocket, SaFamily, SocketType};
 // use smol::block_on;

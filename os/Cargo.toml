@@ -21,13 +21,16 @@ zerocopy = { version = "0.7.35", features = ["derive"] }
 virtio-drivers = { git = "https://github.com/li041/virtio-drivers", branch = 'lxh'}
 memoffset = "0.9.1"
 hashbrown = "0.15.2"
+net={path="modules/net/"}
+async-utils={path="modules/async-utils/"}
+downcast_arc={path="modules/downcast_arc/"}
 
 
 num_enum = { version="0.5", default-features = false }
 
 spin = "0.7"
 
-embedded-hal = "=1.0.0-alpha.7"
+#embedded-hal = "=1.0.0-alpha.7"
 nb = "1.0"
 bit_field = "0.10.2"
 

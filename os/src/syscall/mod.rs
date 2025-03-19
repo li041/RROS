@@ -24,7 +24,7 @@ use util::{sys_times, sys_uname};
 
 use crate::fs::{kstat::Stat, uio::IoVec};
 pub use task::{sys_exit, CloneFlags};
-mod fs;
+pub mod fs;
 mod mm;
 mod task;
 mod util;
